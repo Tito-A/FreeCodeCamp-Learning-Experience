@@ -7,21 +7,19 @@ PSQL="psql --username=freecodecamp --dbname=periodic_table -t --no-align -c"
 ATOM(){
   # checks if an argument was passed
   # checks if num of args equals one
-  if [ $# -eq 1 ]; then
+   if [ $# -eq 1 ]; then
     # stores the argument into the variable input
     INPUT="$1"
   fi
-  # if input does not exists
-  while [[ -z $INPUT ]]; 
-    do
-      echo "Please provide an element as an argument."
-      read INPUT
-    done
+  # check if input exists
+  if [[ -z $INPUT ]]; then
+    echo "Please provide an element as an argument."
+   else
   # check if input is a number
-  if [[ $INPUT =~ [0-9]+ ]]; then
+   if [[ $INPUT =~ ^[0-9]+$ ]]; then
     # get details
     DETAILS=$($PSQL "SELECT atomic_number, name, symbol,type, atomic_mass, melting_point_celsius, boiling_point_celsius FROM properties JOIN types USING(type_id) JOIN elements USING(atomic_number) WHERE (atomic_number=$INPUT)")
-   else
+    else
     # change input to first letter capitalised
     # Change to all lower letter
     INPUT="${INPUT,,}"
@@ -29,6 +27,7 @@ ATOM(){
     INPUT="${INPUT^}"
     # get details
     DETAILS=$($PSQL "SELECT atomic_number, name, symbol,type, atomic_mass, melting_point_celsius, boiling_point_celsius FROM properties JOIN types USING(type_id) JOIN elements USING(atomic_number) WHERE (symbol='$INPUT') OR (name='$INPUT')")
+  
   fi
 
     # discover if input exists as an element in the database
@@ -45,6 +44,7 @@ ATOM(){
      # print element unfound
       echo "I could not find that element in the database."
     fi
+  fi
   }
 
 # calling the function
